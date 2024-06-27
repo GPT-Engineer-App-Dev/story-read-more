@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
 
 const Index = () => {
   const [stories, setStories] = useState([]);
   const [filteredStories, setFilteredStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [minUpvotes, setMinUpvotes] = useState(0);
 
   useEffect(() => {
     fetchTopStories();
@@ -14,7 +16,7 @@ const Index = () => {
 
   useEffect(() => {
     filterStories();
-  }, [searchTerm, stories]);
+  }, [searchTerm, stories, minUpvotes]);
 
   const fetchTopStories = async () => {
     try {
@@ -38,14 +40,20 @@ const Index = () => {
   };
 
   const filterStories = () => {
-    const filtered = stories.filter((story) =>
-      story.title.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = stories.filter(
+      (story) =>
+        story.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        story.score >= minUpvotes
     );
     setFilteredStories(filtered);
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleUpvotesChange = (value) => {
+    setMinUpvotes(value);
   };
 
   return (
@@ -57,6 +65,18 @@ const Index = () => {
           placeholder="Search stories..."
           value={searchTerm}
           onChange={handleSearchChange}
+        />
+      </div>
+      <div className="mb-4">
+        <label htmlFor="upvotes" className="block mb-2">
+          Minimum Upvotes: {minUpvotes}
+        </label>
+        <Slider
+          id="upvotes"
+          defaultValue={[0]}
+          max={500}
+          step={10}
+          onValueChange={handleUpvotesChange}
         />
       </div>
       {loading ? (
